@@ -20,7 +20,7 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name = "provider_id")
-    private ProviderProfile provider;
+    private User provider;
 
     private Integer rating;
     private String comment;

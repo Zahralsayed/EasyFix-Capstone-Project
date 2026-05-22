@@ -1,5 +1,6 @@
 package com.EasyFix.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -18,5 +19,6 @@ public class ServiceCategory {
     private String iconUrl;
 
     @OneToMany(mappedBy = "category")
-    private List<ProviderProfile> providers;
+    @JsonIgnore
+    private List<User> providers;
 }
