@@ -9,9 +9,9 @@ public class PortfolioImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
-    private ProviderProfile provider;
+    private User provider;
 
     private String workImage;
     private String description;

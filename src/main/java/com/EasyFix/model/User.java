@@ -41,6 +41,15 @@ public class User {
     private boolean isVerified = false;
     private String resetToken;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private ServiceCategory category;
+
+    @Embedded
+    private ProviderDetails providerDetails;
+
+    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PortfolioImage> portfolioImages;
 
     @CreationTimestamp
     @Column(updatable = false)

@@ -12,9 +12,9 @@ public class AvailabilitySlot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
-    private ProviderProfile provider;
+    private User provider;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
