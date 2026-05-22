@@ -39,7 +39,8 @@ public class SecurityConfiguration {
                                 "/auth/users/verify",
                                 "/auth/users/change-password",
                                 "/auth/users/forgot-password",
-                                "/auth/users/reset-password"
+                                "/auth/users/reset-password",
+                                "/auth/users/images/**"
                         ).permitAll()
                         .anyRequest().authenticated()
 
