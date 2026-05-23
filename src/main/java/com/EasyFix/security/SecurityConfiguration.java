@@ -42,8 +42,10 @@ public class SecurityConfiguration {
                                 "/auth/users/reset-password",
                                 "/auth/users/images/**",
                                 "/api/categories",
-                                "/api/slots/available"
+                                "/api/slots/available",
+                                "/api/reviews/provider/{providerId}"
                         ).permitAll()
+                        .requestMatchers("/api/reviews/**").authenticated()
                         .anyRequest().authenticated()
 
                 )
