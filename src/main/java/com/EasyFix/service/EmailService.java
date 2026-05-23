@@ -2,8 +2,10 @@ package com.EasyFix.service;
 
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -55,6 +57,23 @@ public class EmailService {
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to send password reset email", e);
+        }
+    }
+
+    @Async
+    public void sendBookingEmailWithAttachment(String toEmail, String subject, String messageText, byte[] pdfBytes, String filename) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(messageText, true);
+
+            helper.addAttachment(filename, new ByteArrayResource(pdfBytes));
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to dispatch appointment notification email to: " + toEmail + " -> " + e.getMessage());
         }
     }
 
