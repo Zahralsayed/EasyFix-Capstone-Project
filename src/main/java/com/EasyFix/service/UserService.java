@@ -3,8 +3,10 @@ package com.EasyFix.service;
 import com.EasyFix.dto.UserUpdateRequest;
 import com.EasyFix.enums.Role;
 import com.EasyFix.enums.UserStatus;
+import com.EasyFix.model.ProviderDetails;
 import com.EasyFix.model.request.LoginRequest;
 import com.EasyFix.repository.AppointmentRepository;
+import com.EasyFix.repository.ServiceCategoryRepository;
 import com.EasyFix.repository.UserRepository;
 import com.EasyFix.security.JWTUtils;
 import com.EasyFix.security.MyUserDetails;
@@ -42,6 +44,7 @@ import java.util.UUID;
 public class UserService {
     private final Path root = Paths.get("src/main/profile-pics");
     private final UserRepository userRepository;
+    private final ServiceCategoryRepository categoryRepository;
     private final ServletContext servletContext;
 //    private final AppointmentRepository appointmentRepository;
 
@@ -55,13 +58,14 @@ public class UserService {
     private final MyUserDetailsService userDetailsService;
 
     @Autowired
-    public UserService(UserRepository userRepository, ServletContext servletContext,
+    public UserService(UserRepository userRepository, ServiceCategoryRepository categoryRepository, ServletContext servletContext,
                        EmailService emailService,
                        @Lazy PasswordEncoder passwordEncoder,
                        JWTUtils jwtUtils,
                        @Lazy AuthenticationManager authenticationManager,
                        @Lazy MyUserDetailsService myUserDetailsService) {
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
         this.servletContext = servletContext;
 //        this.appointmentRepository = appointmentRepository;
         this.emailService = emailService;
@@ -93,7 +97,7 @@ public class UserService {
         String token = UUID.randomUUID().toString();
         user.setVerificationToken(token);
         user.setVerified(false);
-        user.setStatus(UserStatus.PENDING);
+        user.setStatus(UserStatus.PENDING_VERIFICATION);
 
         User savedUser = userRepository.save(user);
 
@@ -134,7 +138,7 @@ public class UserService {
                 throw new RuntimeException("This account has been deactivated. Please contact support.");
             }
 
-            if (myUser.getUser().getStatus() == UserStatus.PENDING) {
+            if (myUser.getUser().getStatus() == UserStatus.PENDING_VERIFICATION) {
                 String token = UUID.randomUUID().toString();
 
                 userRepository.save(user);
@@ -161,23 +165,6 @@ public class UserService {
                     .body(Map.of("error", "Invalid username or password!"));
         }
     }
-
-
-//    public void changePassword(Long userId, String oldPassword ,String newPassword) {
-//        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        if (user.getStatus().equals(UserStatus.ACTIVE)) {
-//
-//            if (!passwordEncoder.matches(oldPassword, user.getPassword())){
-//                throw new RuntimeException("The old password is incorrect");
-//            }
-//
-//            user.setPassword(passwordEncoder.encode(newPassword));
-//            userRepository.save(user);
-//
-//        } else { throw new RuntimeException("You Can't Change Password For " + user.getStatus()+ " Account.");}
-//
-//    }
 
     public void changePassword(String email, String oldPassword ,String newPassword) {
         User user = userRepository.findByEmail(email)
@@ -297,6 +284,42 @@ public class UserService {
                 .toList();
     }
 
+    public List<User> getPendingProviders(){
+        return userRepository.findByStatus(UserStatus.PENDING_APPROVAL);
+    }
+
+    @Transactional
+    public User updateProviderDetails(String email, ProviderDetails newDetails, Long categoryId) {
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        if (user.getRole() != Role.PROVIDER) {
+            throw new RuntimeException("Only provider roles can onboard details.");
+        }
+
+        user.setCategory(categoryRepository.findById(categoryId).orElseThrow());
+        user.setProviderDetails(newDetails);
+
+        user.setStatus(UserStatus.PENDING_APPROVAL);
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User approveProvider(Long providerId) {
+        User provider = userRepository.findById(providerId)
+                .orElseThrow(() -> new RuntimeException("Provider account not found."));
+
+        if (provider.getRole() != Role.PROVIDER) {
+            throw new RuntimeException("Account is not a maintenance professional provider.");
+        }
+
+        provider.setStatus(UserStatus.ACTIVE);
+        return userRepository.save(provider);
+    }
+
+
+
+
 //    public List<User> getCustomersForProviderViaStreams(Long providerId) {
 //        return appointmentRepository.findAll().stream()
 //                .filter(appointment -> appointment.getProvider().getId().equals(providerId))
@@ -318,15 +341,6 @@ public class UserService {
         if (user.getStatus() == UserStatus.INACTIVE) {
             return "User account is already deactivated.";
         }
-//
-//        if (user.getRole() == Role.ADMIN) {
-//            user.setStatus(UserStatus.INACTIVE);
-//            userRepository.save(user);
-//            return "Admin account deactivated.";
-//        } else {
-//            userRepository.delete(user);
-//            return "User permanently removed.";
-//        }
 
         user.setStatus(UserStatus.INACTIVE);
         userRepository.save(user);
