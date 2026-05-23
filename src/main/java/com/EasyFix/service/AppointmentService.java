@@ -29,7 +29,7 @@ public class AppointmentService {
     }
 
     @Transactional
-    public Appointment createBooking(String customerEmail, Long providerId, LocalDateTime startTime) {
+    public Appointment createBooking(String customerEmail, Long providerId, LocalDateTime startTime, String problemDescription) {
         User customer = userRepository.findByEmail(customerEmail)
                 .orElseThrow(() -> new RuntimeException("Customer account not found."));
 
@@ -51,6 +51,7 @@ public class AppointmentService {
         appointment.setStartTime(startTime);
         appointment.setEndTime(endTime);
         appointment.setStatus(AppointmentStatus.SCHEDULED);
+        appointment.setProblemDescription(problemDescription);
 
         if (provider.getProviderDetails() != null) {
             appointment.setTotalPrice(provider.getProviderDetails().getHourlyRate() * 2);
