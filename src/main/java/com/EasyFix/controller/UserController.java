@@ -1,6 +1,8 @@
 package com.EasyFix.controller;
 
 import com.EasyFix.dto.UserUpdateRequest;
+import com.EasyFix.enums.UserStatus;
+import com.EasyFix.model.ProviderDetails;
 import com.EasyFix.model.User;
 import com.EasyFix.model.request.LoginRequest;
 import com.EasyFix.service.UserService;
@@ -12,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
@@ -99,6 +103,37 @@ public class UserController {
         return userService.findAllUsers();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/pending-providers")
+    public ResponseEntity<List<User>> getPendingProviders() {
+        return ResponseEntity.ok(userService.getPendingProviders());
+    }
+
+    @PreAuthorize("hasRole('PROVIDER')")
+    @PutMapping("/provider/onboarding")
+    public ResponseEntity<?> onboardProvider(
+            @RequestBody ProviderDetails providerDetails,
+            @RequestParam Long categoryId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String providerEmail = userDetails.getUsername();
+            User updatedUser = userService.updateProviderDetails(providerEmail, providerDetails, categoryId);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/approve-provider/{id}")
+    public ResponseEntity<?> approveProviderProfile(@PathVariable Long id) {
+        try {
+            User approvedUser = userService.approveProvider(id);
+            return ResponseEntity.ok("Provider '" + approvedUser.getUsername() + "' is now approved and active!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 
     @PostMapping("/upload-image")
