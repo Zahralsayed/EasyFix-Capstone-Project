@@ -26,5 +26,4 @@ public class AvailabilitySlot {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    private boolean isBooked = false;
 }
