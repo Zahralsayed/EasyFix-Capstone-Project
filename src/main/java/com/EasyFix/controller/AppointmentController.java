@@ -33,10 +33,11 @@ public class AppointmentController {
     public ResponseEntity<?> bookJob(
             @RequestParam Long providerId,
             @RequestParam String startTimeIso,
+            @RequestParam String problemDescription,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
             LocalDateTime startTime = LocalDateTime.parse(startTimeIso);
-            Appointment booking = appointmentService.createBooking(userDetails.getUsername(), providerId, startTime);
+            Appointment booking = appointmentService.createBooking(userDetails.getUsername(), providerId, startTime, problemDescription);
             return ResponseEntity.ok(booking);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
