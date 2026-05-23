@@ -7,7 +7,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AvailabilitySlotRepository extends JpaRepository<AvailabilitySlot,Long> {
-    List<AvailabilitySlot> findByProviderIdAndIsBookedFalse(Long providerId);
-
     List<AvailabilitySlot> findByProviderIdAndStartTimeBetween(Long providerId, LocalDateTime start, LocalDateTime end);
 }
