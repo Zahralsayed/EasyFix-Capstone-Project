@@ -33,8 +33,7 @@ The application implements strict role-based authorization to secure sensitive o
 
 ## 🗄️ ERD Diagram
 
-![ERD Diagram](<img width="1358" height="690" alt="EasyFix-ERD" src="https://github.com/user-attachments/assets/58ba3b0d-46a5-4296-821a-c2f5d3b82b5c" />
-)
+<img width="1358" height="690" alt="EasyFix-ERD" src="https://github.com/user-attachments/assets/bfa7844d-4b07-4d17-b12e-d9ac82af1e3b" />
 
 > ERD shows entities: Users, ServiceCategories, Appointments, Reviews, ProviderPortfolios, ProviderBusySlots.  
 > Relationships reflect real-world interactions:  
