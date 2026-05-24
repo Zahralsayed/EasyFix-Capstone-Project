@@ -1,9 +1,11 @@
 package com.EasyFix.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "provider_portfolio")
+@Data
 public class PortfolioImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

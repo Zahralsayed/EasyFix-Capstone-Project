@@ -43,7 +43,8 @@ public class SecurityConfiguration {
                                 "/auth/users/images/**",
                                 "/api/categories",
                                 "/api/slots/available",
-                                "/api/reviews/provider/{providerId}"
+                                "/api/reviews/provider/{providerId}",
+                                "/api/portfolio/provider/**"
                         ).permitAll()
                         .requestMatchers("/api/reviews/**").authenticated()
                         .anyRequest().authenticated()
